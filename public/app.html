@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0ea5e9" />
+<title>Без Тяги — автономная версия</title>
+<link rel="icon" href="/icons/icon-512.png" />
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #020617; color: #f1f5f9;
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 430px; margin: 0 auto; padding: 18px 16px 96px; }
+  h1 { font-size: 20px; margin: 0; }
+  .sub { font-size: 11px; color: #64748b; margin: 2px 0 0; }
+  .lead { color: #94a3b8; font-size: 13px; margin: 10px 0 16px; }
+  .card { background: rgba(15,23,42,.72); border: 1px solid #1e293b; border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+  .row { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
+  label { display: block; font-size: 12px; color: #cbd5e1; margin: 10px 0 5px; font-weight: 600; }
+  input, textarea, select {
+    width: 100%; background: #020617; color: #f1f5f9; border: 1px solid #334155;
+    border-radius: 10px; padding: 10px; font: inherit; outline: none;
+  }
+  input:focus, textarea:focus { border-color: #0ea5e9; }
+  textarea { resize: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .chip { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; border-radius: 999px; padding: 5px 10px; font-size: 11px; }
+  .chip.on { background: rgba(14,165,233,.2); color: #7dd3fc; border-color: #0ea5e9; }
+  .btn { width: 100%; border: 0; border-radius: 14px; padding: 12px; font: inherit; font-weight: 700; background: #0ea5e9; color: #041018; }
+  .btn.alt { background: transparent; color: #e2e8f0; border: 1px solid #334155; font-weight: 600; margin-top: 8px; }
+  .btn.ok { background: #10b981; margin-bottom: 8px; }
+  .tiles { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+  .tile { background: rgba(15,23,42,.72); border: 1px solid #1e293b; border-radius: 16px; padding: 10px; }
+  .tile b { display: block; font-size: 19px; margin-top: 3px; }
+  .tile span { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+  .green { color: #6ee7b7; } .blue { color: #7dd3fc; } .red { color: #fda4af; }
+  .entry { background: rgba(15,23,42,.72); border: 1px solid #1e293b; border-radius: 16px; padding: 11px; margin-bottom: 8px; font-size: 12px; }
+  .entry .meta { color: #94a3b8; font-size: 11px; }
+  .entry .k { color: #64748b; }
+  .pill { background: #1e293b; border-radius: 999px; padding: 1px 8px; color: #7dd3fc; }
+  .del { background: none; border: 1px solid #1e293b; color: #64748b; border-radius: 8px; padding: 3px 8px; font-size: 11px; }
+  nav { position: fixed; left: 0; right: 0; bottom: 0; background: rgba(2,6,23,.96); border-top: 1px solid #1e293b; }
+  nav div { max-width: 430px; margin: 0 auto; display: grid; grid-template-columns: repeat(4,1fr); padding: 6px; }
+  nav button { background: none; border: 0; color: #64748b; font: inherit; font-size: 11px; font-weight: 600; padding: 8px 0; border-radius: 10px; }
+  nav button.on { background: #1e293b; color: #7dd3fc; }
+  .bars { display: flex; align-items: flex-end; gap: 6px; height: 110px; margin-top: 12px; }
+  .bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 3px; }
+  .bar i { display: block; width: 100%; background: linear-gradient(#38bdf8,#0369a1); border-radius: 6px 6px 0 0; min-height: 4px; }
+  .bar span { font-size: 10px; color: #64748b; }
+  .hint { font-size: 11px; color: #64748b; text-align: center; }
+  .top li { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: #cbd5e1; }
+  .top ul { list-style: none; padding: 0; margin: 8px 0 0; }
+  #toast { position: fixed; left: 0; right: 0; bottom: 70px; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
+  #toast p { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; border-radius: 999px; padding: 7px 14px; font-size: 12px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="row">
+    <div>
+      <h1>🫁 Без Тяги</h1>
+      <p class="sub">автономная версия · данные только в этом телефоне</p>
+    </div>
+  </div>
+  <p class="lead">Записывай каждый эпизод тяги: мозг учится замечать триггеры, и привычка теряет силу.</p>
+
+  <div class="tiles">
+    <div class="tile"><span>Дней чисто</span><b class="green" id="t-days">—</b></div>
+    <div class="tile"><span>Тяг сегодня</span><b id="t-today">0</b></div>
+    <div class="tile"><span>Не закурил</span><b class="blue" id="t-wins">0</b></div>
+  </div>
+
+  <!-- ФОРМА -->
+  <section id="view-log">
+    <div class="card">
+      <div class="row"><h2 style="font-size:15px;margin:0">Новая запись</h2><span id="timer" class="pill hidden"></span></div>
+      <button class="btn ok" id="startTimer" style="margin-top:10px">⏱ Тяга началась — запустить таймер</button>
+      <label>Дата и время тяги</label>
+      <input type="datetime-local" id="f-when" />
+      <label>Место</label>
+      <input id="f-place" placeholder="Дом, работа, улица..." />
+      <div class="chips" id="c-place"></div>
+      <label>Что было прямо перед тягой</label>
+      <textarea id="f-before" rows="2" placeholder="Кофе, ссора, звонок, окончание задачи..."></textarea>
+      <label>Чувство за 10–30 секунд до тяги</label>
+      <textarea id="f-feel" rows="2" placeholder="Тревога, скука, злость, усталость..."></textarea>
+      <div class="chips" id="c-feel"></div>
+      <label>Сила тяги: <b id="f-int-v">5</b>/10</label>
+      <input type="range" min="1" max="10" value="5" id="f-int" />
+      <label>Что сделал(а) вместо</label>
+      <textarea id="f-act" rows="2" placeholder="Вода, вдохи, прогулка, ничего..."></textarea>
+      <div class="chips" id="c-act"></div>
+      <div class="chips" style="margin-top:12px">
+        <button class="chip" id="smoke-no">Не закурил(а)</button>
+        <button class="chip" id="smoke-yes">Закурил(а)</button>
+      </div>
+      <button class="btn" id="save" style="margin-top:12px">Сохранить эпизод</button>
+      <p class="hint">Всё хранится локально, интернет не нужен.</p>
+    </div>
+  </section>
+
+  <!-- АНАЛИТИКА -->
+  <section id="view-stats" class="hidden">
+    <div class="card">
+      <h2 style="font-size:15px;margin:0 0 4px">Последние 7 дней</h2>
+      <div class="bars" id="bars"></div>
+    </div>
+    <div class="card top"><h3 style="margin:0;font-size:14px">Частые места</h3><ul id="top-place"></ul></div>
+    <div class="card top"><h3 style="margin:0;font-size:14px">Частые чувства</h3><ul id="top-feel"></ul></div>
+    <div class="card top"><h3 style="margin:0;font-size:14px">Что помогало</h3><ul id="top-act"></ul></div>
+  </section>
+
+  <!-- ИСТОРИЯ -->
+  <section id="view-history" class="hidden"><div id="list"></div></section>
+
+  <!-- ДАННЫЕ -->
+  <section id="view-data" class="hidden">
+    <div class="card">
+      <h2 style="font-size:15px;margin:0 0 6px">Данные</h2>
+      <p class="sub" id="d-count"></p>
+      <button class="btn alt" id="export">⬇️ Сохранить резервную копию (JSON)</button>
+      <button class="btn alt" id="importBtn">⬆️ Загрузить резервную копию</button>
+      <input type="file" id="importFile" accept="application/json" class="hidden" />
+      <button class="btn alt" id="clear" style="color:#fda4af">🗑 Удалить все записи</button>
+    </div>
+  </section>
+</div>
+
+<nav><div>
+  <button data-view="log" class="on">Запись</button>
+  <button data-view="stats">Аналитика</button>
+  <button data-view="history">История</button>
+  <button data-view="data">Данные</button>
+</div></nav>
+<div id="toast" class="hidden"><p></p></div>
+
+<script>
+(function () {
+  "use strict";
+  var KEY = "bez-tyagi:entries:v1";
+  var PLACE = ["Дома", "На работе", "Улица / балкон", "Кафе / бар", "В машине"];
+  var FEEL = ["Тревога", "Скука", "Злость", "Усталость", "Стресс", "Расслабление"];
+  var ACT = ["Ничего, просто переждал(а)", "5 глубоких вдохов", "Стакан воды", "Прогулка", "Написал(а) другу"];
+  var state = { entries: [], smoked: false, timerStart: null, elapsed: 0 };
+  var $ = function (id) { return document.getElementById(id); };
+
+  function load() {
+    try { state.entries = JSON.parse(localStorage.getItem(KEY) || "[]") || []; }
+    catch (e) { state.entries = []; }
+    if (!Array.isArray(state.entries)) state.entries = [];
+    state.entries.sort(function (a, b) { return new Date(b.occurredAt) - new Date(a.occurredAt); });
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state.entries.slice(0, 2000))); }
+    catch (e) { toast("Память браузера заполнена"); }
+  }
+  function toast(text) {
+    var box = $("toast"), p = box.querySelector("p");
+    p.textContent = text; box.classList.remove("hidden");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { box.classList.add("hidden"); }, 2600);
+  }
+  function localNow() {
+    var d = new Date();
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  }
+  function chips(hostId, options, apply) {
+    var host = $(hostId);
+    host.innerHTML = "";
+    options.slice(0, 5).forEach(function (opt) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = opt;
+      b.onclick = function () { apply(opt); render(); };
+      host.appendChild(b);
+    });
+  }
+  function uniq(values, fallback) {
+    var out = [], seen = {};
+    values.concat(fallback).forEach(function (v) {
+      v = (v || "").trim();
+      if (!v || seen[v]) return;
+      seen[v] = true; out.push(v);
+    });
+    return out;
+  }
+  function render() {
+    $("f-int-v").textContent = $("f-int").value;
+    $("smoke-yes").className = "chip" + (state.smoked ? " on" : "");
+    $("smoke-no").className = "chip" + (!state.smoked ? " on" : "");
+    chips("c-place", uniq(state.entries.map(function (e) { return e.place; }), PLACE), function (v) { $("f-place").value = v; });
+    chips("c-feel", uniq(state.entries.map(function (e) { return e.feeling; }), FEEL), function (v) { $("f-feel").value = v; });
+    chips("c-act", uniq(state.entries.map(function (e) { return e.alternativeAction; }), ACT), function (v) { $("f-act").value = v; });
+    renderTiles(); renderStats(); renderList();
+    $("d-count").textContent = "Записей в телефоне: " + state.entries.length;
+  }
+  function dayKey(d) { return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+  function renderTiles() {
+    var today = new Date(); var tKey = dayKey(today);
+    var todayItems = state.entries.filter(function (e) { return dayKey(new Date(e.occurredAt)) === tKey; });
+    var lastSmoked = state.entries.filter(function (e) { return e.smoked; })[0];
+    var earliest = state.entries[state.entries.length - 1];
+    var days = null;
+    var anchor = lastSmoked ? new Date(lastSmoked.occurredAt) : (earliest ? new Date(earliest.occurredAt) : null);
+    if (anchor) {
+      var a = new Date(anchor); a.setHours(0, 0, 0, 0);
+      days = Math.max(0, Math.floor((today.setHours(0, 0, 0, 0) - a) / 86400000));
+    }
+    $("t-days").textContent = days === null ? "—" : days;
+    $("t-today").textContent = todayItems.length;
+    $("t-wins").textContent = state.entries.filter(function (e) { return !e.smoked; }).length;
+  }
+  function topList(hostId, field) {
+    var counts = {};
+    state.entries.forEach(function (e) {
+      var v = (e[field] || "").trim();
+      if (!v) return;
+      counts[v] = (counts[v] || 0) + 1;
+    });
+    var items = Object.keys(counts).map(function (k) { return { label: k, count: counts[k] }; });
+    items.sort(function (a, b) { return b.count - a.count; });
+    var host = $(hostId);
+    host.innerHTML = items.length ? "" : "<li style='color:#64748b'>Нет данных</li>";
+    items.slice(0, 3).forEach(function (it) {
+      var li = document.createElement("li");
+      li.innerHTML = "<span>" + it.label.replace(/</g, "&lt;") + "</span><span class='pill'>×" + it.count + "</span>";
+      host.appendChild(li);
+    });
+  }
+  function renderStats() {
+    var buckets = {};
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(); d.setDate(d.getDate() - i);
+      buckets[dayKey(d)] = { label: ["вс","пн","вт","ср","чт","пт","сб"][d.getDay()], count: 0 };
+    }
+    state.entries.forEach(function (e) {
+      var k = dayKey(new Date(e.occurredAt));
+      if (buckets[k]) buckets[k].count += 1;
+    });
+    var keys = Object.keys(buckets), max = 1;
+    keys.forEach(function (k) { max = Math.max(max, buckets[k].count); });
+    var host = $("bars"); host.innerHTML = "";
+    keys.forEach(function (k) {
+      var div = document.createElement("div"); div.className = "bar";
+      var bar = document.createElement("i");
+      bar.style.height = Math.max(4, (buckets[k].count / max) * 100) + "%";
+      var label = document.createElement("span"); label.textContent = buckets[k].label;
+      var num = document.createElement("span"); num.textContent = buckets[k].count;
+      num.style.color = "#cbd5e1";
+      div.appendChild(bar); div.appendChild(label); div.appendChild(num);
+      host.appendChild(div);
+    });
+    topList("top-place", "place"); topList("top-feel", "feeling"); topList("top-act", "alternativeAction");
+  }
+  function fmt(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return iso;
+    var p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return p(d.getDate()) + "." + p(d.getMonth() + 1) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+  function esc(s) { return String(s || "").replace(/</g, "&lt;"); }
+  function renderList() {
+    var host = $("list");
+    if (!state.entries.length) {
+      host.innerHTML = "<div class='card'><p class='sub'>Пока нет записей. Запиши 20–30 эпизодов — и увидишь свои триггеры.</p></div>";
+      return;
+    }
+    host.innerHTML = "";
+    state.entries.forEach(function (e) {
+      var art = document.createElement("article");
+      art.className = "entry";
+      var html = "<div class='row'><span class='meta'><b style='color:#e2e8f0'>" + fmt(e.occurredAt) + "</b> <span class='pill'>" + e.intensity + "/10</span></span>" +
+        "<button class='del' data-id='" + e.id + "'>Удалить</button></div>";
+      if (e.place) html += "<p><span class='k'>Место:</span> " + esc(e.place) + "</p>";
+      if (e.beforeCraving) html += "<p><span class='k'>Перед тягой:</span> " + esc(e.beforeCraving) + "</p>";
+      if (e.feeling) html += "<p><span class='k'>Чувство:</span> " + esc(e.feeling) + "</p>";
+      if (e.alternativeAction) html += "<p><span class='k'>Вместо:</span> " + esc(e.alternativeAction) + "</p>";
+      html += "<p class='" + (e.smoked ? "red" : "green") + "' style='margin:6px 0 0'>" + (e.smoked ? "Закурил(а)" : "Не закурил(а) — победа") + "</p>";
+      art.innerHTML = html;
+      host.appendChild(art);
+    });
+    Array.prototype.forEach.call(host.querySelectorAll(".del"), function (btn) {
+      btn.onclick = function () {
+        state.entries = state.entries.filter(function (e) { return e.id !== btn.getAttribute("data-id"); });
+        save(); render(); toast("Запись удалена");
+      };
+    });
+  }
+  function resetForm() {
+    $("f-place").value = ""; $("f-before").value = ""; $("f-feel").value = "";
+    $("f-act").value = ""; $("f-int").value = 5; state.smoked = false;
+    stopTimer();
+  }
+  function stopTimer() {
+    state.timerStart = null; state.elapsed = 0;
+    $("timer").classList.add("hidden");
+    $("startTimer").textContent = "⏱ Тяга началась — запустить таймер";
+    $("startTimer").classList.add("ok");
+  }
+  function commit(durationSec) {
+    var when = new Date($("f-when").value);
+    if (isNaN(when.getTime())) { toast("Проверь дату и время"); return; }
+    state.entries.unshift({
+      id: (Date.now().toString(36)) + "-" + Math.random().toString(36).slice(2, 8),
+      occurredAt: when.toISOString(),
+      place: $("f-place").value.trim(),
+      beforeCraving: $("f-before").value.trim(),
+      feeling: $("f-feel").value.trim(),
+      intensity: Number($("f-int").value) || 5,
+      alternativeAction: $("f-act").value.trim(),
+      smoked: state.smoked,
+      durationSec: durationSec,
+      createdAt: new Date().toISOString()
+    });
+    state.entries.sort(function (a, b) { return new Date(b.occurredAt) - new Date(a.occurredAt); });
+    save(); resetForm(); render();
+    toast(state.smoked ? "Записал(а). Это данные, а не приговор." : "Записал(а). Тяга прошла — победа!");
+  }
+
+  $("f-when").value = localNow();
+  $("f-int").oninput = render;
+  $("smoke-yes").onclick = function () { state.smoked = true; render(); };
+  $("smoke-no").onclick = function () { state.smoked = false; render(); };
+  $("save").onclick = function () { commit(state.timerStart === null ? null : state.elapsed); };
+  $("startTimer").onclick = function () {
+    if (state.timerStart !== null) { commit(state.elapsed); return; }
+    $("f-when").value = localNow();
+    state.timerStart = Date.now(); state.elapsed = 0;
+    $("startTimer").textContent = "✅ Тяга прошла — сохранить";
+    $("startTimer").classList.remove("ok");
+    $("timer").classList.remove("hidden");
+  };
+  setInterval(function () {
+    if (state.timerStart === null) return;
+    state.elapsed = Math.floor((Date.now() - state.timerStart) / 1000);
+    $("timer").textContent = "Тяга идёт · " + (state.elapsed < 60 ? state.elapsed + " сек" : Math.round(state.elapsed / 60) + " мин");
+  }, 1000);
+
+  Array.prototype.forEach.call(document.querySelectorAll("nav button"), function (btn) {
+    btn.onclick = function () {
+      Array.prototype.forEach.call(document.querySelectorAll("nav button"), function (b) { b.classList.remove("on"); });
+      btn.classList.add("on");
+      ["log", "stats", "history", "data"].forEach(function (v) {
+        $("view-" + v).classList.toggle("hidden", v !== btn.getAttribute("data-view"));
+      });
+    };
+  });
+
+  $("export").onclick = function () {
+    var blob = new Blob([JSON.stringify({ app: "bez-tyagi", version: 1, exportedAt: new Date().toISOString(), entries: state.entries }, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "bez-tyagi-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    toast("Резервная копия сохранена");
+  };
+  $("importBtn").onclick = function () { $("importFile").click(); };
+  $("importFile").onchange = function (ev) {
+    var file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    file.text().then(function (text) {
+      var data = JSON.parse(text);
+      var list = Array.isArray(data) ? data : (data && data.entries) || [];
+      var byId = {};
+      state.entries.forEach(function (e) { byId[e.id] = e; });
+      list.forEach(function (e) { if (e && e.occurredAt) byId[e.id || (Date.now() + Math.random())] = e; });
+      state.entries = Object.keys(byId).map(function (k) { return byId[k]; });
+      state.entries.sort(function (a, b) { return new Date(b.occurredAt) - new Date(a.occurredAt); });
+      save(); render(); toast("Импортировано записей: " + list.length);
+    }).catch(function () { toast("Не удалось прочитать файл"); });
+    ev.target.value = "";
+  };
+  $("clear").onclick = function () {
+    if (!confirm("Удалить все записи с телефона?")) return;
+    state.entries = []; save(); render(); toast("Все записи удалены");
+  };
+
+  load(); render();
+})();
+</script>
+</body>
+</html>
