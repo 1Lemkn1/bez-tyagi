@@ -1,10 +1,10 @@
 {
-  "id": "/",
+  "id": "./",
   "name": "Без Тяги — трекер тяги к сигаретам",
   "short_name": "Без Тяги",
   "description": "Локальный трекер эпизодов никотиновой тяги и триггеров. Работает офлайн, данные хранятся в телефоне.",
-  "start_url": "/?source=pwa",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait-primary",
@@ -12,21 +12,22 @@
   "theme_color": "#0ea5e9",
   "lang": "ru",
   "categories": ["health", "lifestyle", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-maskable-512.png",
+      "src": "icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
