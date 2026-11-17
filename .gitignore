@@ -8,6 +8,8 @@ node_modules/
 /out/
 /build
 /dist
+# Граф кода graphify — генерируется локально
+/graphify-out/
 
 # Генерируемые файлы
 next-env.d.ts

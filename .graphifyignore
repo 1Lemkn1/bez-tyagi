@@ -1,0 +1,9 @@
+# graphify: что не индексировать
+graphify-out/
+node_modules/
+.next/
+out/
+coverage/
+package-lock.json
+*.png
+*.woff2
